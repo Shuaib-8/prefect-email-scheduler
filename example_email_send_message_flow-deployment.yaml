@@ -1,0 +1,40 @@
+###
+### A complete description of a Prefect Deployment for flow 'example-email-send-message-flow'
+###
+name: test-flow-email-run
+description: null
+version: 10f0df6c6a374acf839d6a3b54b1ffac
+# The work queue that will handle this deployment's runs
+work_queue_name: test
+work_pool_name: null
+work_pool_queue_name: null
+tags: []
+parameters: {}
+schedule: null
+infra_overrides: {}
+infrastructure:
+  type: process
+  env: {}
+  labels: {}
+  name: null
+  command: null
+  stream_output: true
+  working_dir: null
+  block_type_slug: process
+  _block_type_slug: process
+
+###
+### DO NOT EDIT BELOW THIS LINE
+###
+flow_name: example-email-send-message-flow
+manifest_path: null
+storage: null
+path: /Users/ShuaibAhmed_1/Desktop/software-tech-programming/prefect
+entrypoint: email_flow.py:example_email_send_message_flow
+parameter_openapi_schema:
+  title: Parameters
+  type: object
+  properties: {}
+  required: null
+  definitions: null
+timestamp: '2023-01-25T07:39:50.666332+00:00'
