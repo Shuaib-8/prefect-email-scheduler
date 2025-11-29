@@ -1,10 +1,12 @@
-from email_flow import example_email_send_message_flow
+from prefect import flow
 
 if __name__ == "__main__":
-    example_email_send_message_flow.deploy(
+    flow.from_source(
+        source="https://github.com/Shuaib-8/prefect-exs.git",
+        entrypoint="email_flow.py:example_email_send_message_flow"
+    ).deploy(
         name="email-deployment",
-        work_pool_name="prefect-managed",
+        work_pool_name="managed-prefect-workpool",
         tags=["email", "automation"],
         description="Sends scheduled emails to carers with payment information",
     )
-
