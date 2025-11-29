@@ -40,12 +40,12 @@ def example_email_send_message_flow(email_addresses: List[str]):
 
     # Load all email configuration from JSON variable (Prefect auto-parses JSON)
     config = Variable.get('email_config')  # type: ignore
-    org_name = config['orgname']
-    carers = config['carers']
+    org_name = config['orgname'] # type: ignore
+    carers = config['carers'] # type: ignore
 
     subject = None
     for email_address in email_addresses:
-        for carer_name, carer_config in carers.items():
+        for carer_name, carer_config in carers.items(): # type: ignore
             subject = email_send_message.with_options(name=f"email {email_address} - {carer_name}").submit(
                 email_server_credentials=email_server_credentials, # type: ignore
                 subject=email_subject(carer_name),
