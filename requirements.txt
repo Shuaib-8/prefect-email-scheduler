@@ -1,0 +1,2 @@
+# Prefect 3 with email integration
+prefect[email]>=3.0.0

@@ -1,80 +1,62 @@
 from prefect import flow
 from prefect_email import EmailServerCredentials, email_send_message
-from prefect import variables # Retrieve variables defined in Prefect Cloud/UI
+from prefect.variables import Variable
 from typing import List
 
 from email_template import email_subject, email_body
 
-# Define flow.
-# Function parameters inside flows are defined on Prefect Cloud/UI as "Flow Parameters".
-@flow
-def example_email_send_message_flow(email_addresses: List[str], 
-                                    carers: list[str],
-                                    hours: list[int]):
-    # Docstring the function example_email_send_message_flow
-    """
-    This function sends an email to a list of email addresses, 
-    aided by Prefect dataflows.
 
-    The email body and email subject are templates which are set 
-    by the function email_subject and email_body respectively
-    (defined in ./email_template.py).
-    The email body template is defined in email_body as a literal HTML string
-    and saved as a variable called `msg` within `email_send_message` function.
-   
-    The email server credentials are retrieved from Prefect Cloud/UI tab 
-    called 'Blocks'using the function EmailServerCredentials.load 
-    with the argument where a block is defined (email server credentials).
+@flow
+def example_email_send_message_flow(email_addresses: List[str]):
+    """
+    Sends payment emails to carers via Prefect Cloud.
+
+    Email configuration is loaded from a single JSON variable 'email_config' in Prefect Cloud.
+    
+    Expected JSON format:
+    {
+        "orgname": "<organization_name>",
+        "carers": {
+            "<carer_name>": {
+                "hours": <int>,
+                "rate": "<hourly_rate>",
+                "sig": "<signature_name>",
+                "reference": "<reference_number>"
+            }
+        }
+    }
 
     Parameters
     ----------
     email_addresses : List[str]
-        A list of email addresses
-    carers : list[str]
-        A list of carer names
-    hours : list[int]
-        A list of hours worked
+        A list of email addresses to send to
 
     Returns
     -------
-    subject : str
-        The email body and email subject, sent to the email address recipients.
-
-    Raises
-    ------
-    AssertionError
-        If the carers and hours lists retrieved from Prefect Cloud/UI 
-        aren't identical to the email_carer_dict keys and values respectively.
+    subject
+        The last email task submitted.
     """
     email_server_credentials = EmailServerCredentials.load("gmail-access-app")
 
-    # Define carer name and corresponding hours worked
-    email_carer_dict = {
-        str(variables.get('carer1')): int(variables.get('hours1')),
-        str(variables.get('carer2')): int(variables.get('hours2'))
-    }
+    # Load all email configuration from JSON variable (Prefect auto-parses JSON)
+    config = Variable.get('email_config')  # type: ignore
+    org_name = config['orgname']
+    carers = config['carers']
 
-    # Basic checks 
-    assert carers == list(email_carer_dict.keys())
-    assert hours == list(email_carer_dict.values())
-
+    subject = None
     for email_address in email_addresses:
-        for carer, hours in email_carer_dict.items():
-            subject = email_send_message.with_options(name=f"email {email_address}").submit(
-                email_server_credentials=email_server_credentials,
-                subject = email_subject(carer),
-                msg = email_body(carer, 
-                                 hours, 
-                                 variables.get('orgname'), 
-                                 variables.get('rate'), 
-                                 variables.get('sig')
-                                ),
+        for carer_name, carer_config in carers.items():
+            subject = email_send_message.with_options(name=f"email {email_address} - {carer_name}").submit(
+                email_server_credentials=email_server_credentials, # type: ignore
+                subject=email_subject(carer_name),
+                msg=email_body(
+                    name=carer_name, 
+                    hours=int(carer_config['hours']), 
+                    org_name=org_name, 
+                    rate=carer_config['rate'], 
+                    sig=carer_config['sig'],
+                    reference=carer_config['reference']
+                ),
                 email_to=email_address,
             )
     return subject
-
-
-if __name__ == '__main__':
-    example_email_send_message_flow()
-
-

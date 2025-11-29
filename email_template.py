@@ -1,9 +1,6 @@
-from dotenv import load_dotenv
-import os
 import datetime
 
-load_dotenv()
-
+# Calculate date ranges for email template
 now = datetime.date.today()
 now_month = now.strftime("%B")
 now_year = now.strftime("%Y")
@@ -12,7 +9,8 @@ last_month = step_back - datetime.timedelta(days=1)
 prev_month = last_month.strftime("%B")
 prev_year = last_month.strftime('%Y')
 
-def email_subject(name: str):
+
+def email_subject(name: str) -> str:
     """
     This function sets the email subject template.
 
@@ -23,17 +21,18 @@ def email_subject(name: str):
 
     Returns
     -------
-    email_sbj : str
-        The email subject
+    str
+        The email subject in format: "Name PrevMonth PrevYear - CurrentMonth CurrentYear"
     """
-    email_sbj = f"{name} {prev_month} {prev_year} - {now_month} {now_year}"
-    return email_sbj
+    return f"{name} {prev_month} {prev_year} - {now_month} {now_year}"
 
-def email_body(name:str, 
+
+def email_body(name: str, 
                hours: int, 
-               org_name:str, 
-               rate: int, 
-               sig: str):
+               org_name: str, 
+               rate: str, 
+               sig: str,
+               reference: str) -> str:
     """
     This function sets the email body template.
 
@@ -45,20 +44,19 @@ def email_body(name:str,
         The number of hours worked
     org_name : str
         The name of the organisation
-    rate : int
-        The hourly rate
+    rate : str
+        The hourly rate (e.g., "£11.95")
     sig : str
         The name of the person sending the email
+    reference : str
+        The reference number for the payment
 
     Returns
     -------
-    email_body_template : str
-        The email body template. 
-        Line breaks and text bolding are included for readability, 
-        having to use literal HTML for the email body.
+    str
+        The email body template as HTML string.
     """
-    email_body_template = \
-    f"""
+    return f"""
     Dear {org_name},
     <br>
     <br>
@@ -70,18 +68,5 @@ def email_body(name:str,
     <br>
     Kind regards,
     <br>
-    {sig}    
+    {sig} - Reference: {reference}
     """
-    return email_body_template
-
-if __name__ == '__main__':
-    ex = email_subject(name=os.getenv('CARER1'))
-    print(ex)
-
-    ex2 = email_body(name=os.getenv('CARER1'), 
-                     hours=os.getenv('HOURS1'), 
-                     org_name=os.getenv('ORGNAME'), 
-                     rate=os.getenv('RATE'), 
-                     sig=os.getenv('SIG')
-    )
-    print(ex2)
