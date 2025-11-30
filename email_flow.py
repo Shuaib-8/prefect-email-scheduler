@@ -102,10 +102,11 @@ def example_email_send_message_flow(email_addresses: List[str]):
     org_name, carers = validate_config(config)  # type: ignore
 
     logger = get_run_logger()
+    logger.info(f"There are {len(email_addresses)} email addresses to send emails to")
+    logger.info(f"There are {len(carers)} carers to send emails to")
     
     subject = None
     for email_address in email_addresses:
-        logger.info(f"There are {len(carers)} carers to send emails to")
         logger.info(f"Sending email to {email_address}")
         for carer_name, carer_config in carers.items():
             logger.info(f"Sending email for {carer_name}")
