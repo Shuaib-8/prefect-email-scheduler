@@ -1,11 +1,9 @@
-from prefect import flow
+from prefect import flow, get_run_logger
 from prefect_email import EmailServerCredentials, email_send_message
 from prefect.variables import Variable
 from typing import List
 
 from email_template import email_subject, email_body
-
-from loguru import logger
 
 def validate_config(config: dict) -> tuple[str, dict]:
     """
@@ -103,12 +101,14 @@ def example_email_send_message_flow(email_addresses: List[str]):
     config = Variable.get('email_config')  # type: ignore
     org_name, carers = validate_config(config)  # type: ignore
 
+    logger = get_run_logger()
+    
     subject = None
     for email_address in email_addresses:
         logger.info(f"There are {len(carers)} carers to send emails to")
         logger.info(f"Sending email to {email_address}")
         for carer_name, carer_config in carers.items():
-            logger.info(f"Sending email to {carer_name}")
+            logger.info(f"Sending email for {carer_name}")
             subject = email_send_message.with_options(name=f"email {email_address} - {carer_name}").submit(
                 email_server_credentials=email_server_credentials,  # type: ignore
                 subject=email_subject(carer_name),
@@ -122,5 +122,5 @@ def example_email_send_message_flow(email_addresses: List[str]):
                 ),
                 email_to=email_address,
             )
-            logger.info(f"Email sent to {carer_name}")
+            logger.info(f"Email task submitted for {carer_name}")
     return subject
