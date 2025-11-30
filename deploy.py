@@ -10,7 +10,7 @@ if __name__ == "__main__":
         tags=["email", "automation"],
         description="Sends scheduled emails to carers with payment information",
         job_variables={
-            "pip_packages": ["prefect-email"],
-            "env": {"EXTRA_PIP_PACKAGES": "prefect-email"}
+            "pip_packages": ["prefect-email", "loguru"],
+            "env": {"EXTRA_PIP_PACKAGES": "prefect-email, loguru"}
         }
     )
