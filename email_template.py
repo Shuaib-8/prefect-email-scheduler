@@ -4,10 +4,10 @@ import datetime
 def _get_date_range() -> tuple[str, str, str, str]:
     """
     Calculate current and previous month/year for email templates.
-    
+
     Called fresh each time to ensure dates are always current,
     even in long-running deployments.
-    
+
     Returns
     -------
     tuple
@@ -19,7 +19,7 @@ def _get_date_range() -> tuple[str, str, str, str]:
     step_back = now.replace(day=1)
     last_month = step_back - datetime.timedelta(days=1)
     prev_month = last_month.strftime("%B")
-    prev_year = last_month.strftime('%Y')
+    prev_year = last_month.strftime("%Y")
     return prev_month, prev_year, now_month, now_year
 
 
@@ -41,12 +41,9 @@ def email_subject(name: str) -> str:
     return f"{name} {prev_month} {prev_year} - {now_month} {now_year}"
 
 
-def email_body(name: str, 
-               hours: int, 
-               org_name: str, 
-               rate: str, 
-               sig: str,
-               reference: str) -> str:
+def email_body(
+    name: str, hours: int, org_name: str, rate: str, sig: str, reference: str
+) -> str:
     """
     This function sets the email body template.
 
