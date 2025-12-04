@@ -41,9 +41,7 @@ def email_subject(name: str) -> str:
     return f"{name} {prev_month} {prev_year} - {now_month} {now_year}"
 
 
-def email_body(
-    name: str, hours: int, org_name: str, rate: str, sig: str, reference: str
-) -> str:
+def email_body(name: str, hours: int, org_name: str, rate: str, sig: str, reference: str) -> str:
     """
     This function sets the email body template.
 

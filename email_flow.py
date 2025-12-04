@@ -20,9 +20,7 @@ def validate_config(config: dict) -> tuple[str, dict]:
         )
 
     if not isinstance(config, dict):
-        raise ValueError(
-            f"email_config must be a JSON object, got {type(config).__name__}"
-        )
+        raise ValueError(f"email_config must be a JSON object, got {type(config).__name__}")
 
     # Validate required top-level keys
     if "orgname" not in config:
