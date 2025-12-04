@@ -9,12 +9,6 @@ dependencies = [
     "aiohttp>=3.9.0",
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.8.0",
-    "mypy>=1.13.0",
-]
-
 [dependency-groups]
 dev = [
     "ruff>=0.8.0",
