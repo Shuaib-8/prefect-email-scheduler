@@ -1,0 +1,36 @@
+[project]
+name = "prefect-email-scheduler"
+version = "0.1.0"
+description = "Using Prefect to schedule emails for periodic payment confirmations"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "prefect[email]>=3.6.4",
+    "aiohttp>=3.9.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+warn_return_any = true
+warn_unused_ignores = true
+
