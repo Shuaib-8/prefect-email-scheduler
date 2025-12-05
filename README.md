@@ -36,6 +36,15 @@ uv run main.py
 2. **email_template.py** - Contains the templates for the emails.
 3. **deploy.py** - Used to deploy the flow to Prefect Cloud.
 
+## Testing
+
+Install test dependencies and run the test suite:
+
+```bash
+uv sync --group test
+uv run pytest tests/ -v
+```
+
 ## Development 
 
 Dev dependencies (ruff, mypy) are included by default with `uv sync`. To install without dev tools:
