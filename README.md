@@ -2,6 +2,8 @@
 
 Using Prefect to schedule emails - example of how to use Prefect to schedule emails such as for periodic payment confirmation emails to accounts receivable staff to confirm payroll payments.
 
+https://github.com/user-attachments/assets/dc56f2f6-8233-44ba-9f74-463e6f92fc16
+
 ## Setup
 
 This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
