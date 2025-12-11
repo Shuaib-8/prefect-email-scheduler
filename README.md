@@ -37,6 +37,7 @@ uv run main.py
 1. **email_flow.py** - The main file that contains the flow for sending the emails.
 2. **email_template.py** - Contains the templates for the emails.
 3. **deploy.py** - Used to deploy the flow to Prefect Cloud.
+4. **starter.py** - A reference example demonstrating how tasks and flow operations are designated in Prefect (not essential to this project).
 
 ## Testing
 
