@@ -111,7 +111,8 @@ def example_email_send_message_flow(email_addresses: List[str]):
         for carer_name, carer_config in carers.items():
             logger.info(f"Sending email for {carer_name}")
             subject = email_send_message.with_options(
-                name=f"email {email_address} - {carer_name}"
+                name=f"email {email_address} - {carer_name}",
+                timeout_seconds=150,
             ).submit(
                 email_server_credentials=email_server_credentials,  # type: ignore
                 subject=email_subject(carer_name),
