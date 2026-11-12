@@ -1,6 +1,7 @@
-from typing import List
+from typing import Any
 
 from prefect import flow, get_run_logger
+from prefect.futures import PrefectFuture
 from prefect.variables import Variable
 from prefect_email import EmailServerCredentials, email_send_message
 
@@ -61,7 +62,7 @@ def validate_config(config: dict) -> tuple[str, dict]:
 
 
 @flow
-def example_email_send_message_flow(email_addresses: List[str]):
+def example_email_send_message_flow(email_addresses: list[str]) -> list[PrefectFuture[Any]]:
     """
     Sends payment emails to carers via Prefect Cloud.
 
@@ -87,8 +88,11 @@ def example_email_send_message_flow(email_addresses: List[str]):
 
     Returns
     -------
-    subject
-        The last email task submitted.
+    send_futures
+        Every submitted email task, in submission order. Prefect derives the flow's final
+        state from the returned value only, so returning all of them (not just the last)
+        makes the run Failed if any single send fails — which is what the failure-alert
+        automation listens for.
 
     Raises
     ------
@@ -105,12 +109,12 @@ def example_email_send_message_flow(email_addresses: List[str]):
     logger.info(f"There are {len(email_addresses)} email addresses to send emails to")
     logger.info(f"There are {len(carers)} carers to send emails to")
 
-    subject = None
+    send_futures: list[PrefectFuture[Any]] = []
     for email_address in email_addresses:
         logger.info(f"Sending email to {email_address}")
         for carer_name, carer_config in carers.items():
             logger.info(f"Sending email for {carer_name}")
-            subject = email_send_message.with_options(
+            send_future = email_send_message.with_options(
                 name=f"email {email_address} - {carer_name}",
                 timeout_seconds=150,
             ).submit(
@@ -126,5 +130,6 @@ def example_email_send_message_flow(email_addresses: List[str]):
                 ),
                 email_to=email_address,
             )
+            send_futures.append(send_future)
             logger.info(f"Email task submitted for {carer_name}")
-    return subject
+    return send_futures
