@@ -8,6 +8,7 @@ Reviewers: correctness, adversarial, reliability, testing and project-standards.
   Suggested fix: return the list of all submitted futures, or `wait()` on them and raise if any failed. Add a test where the first send fails and the last succeeds.
   Not applied: it changes how the deployed flow terminates, so it needs an explicit decision.
   Tracker: not filed. GitHub issue creation was blocked by the session's permission policy, so this file is the durable record.
+  **Status: resolved in PR #9.** The flow now returns every submitted send future.
 
 ### Lower-confidence notes (below the actionable bar, kept for visibility)
 - `automations.py` reports success without reading the automation back, even though Cloud has silently dropped a 201-created automation before (seen with `send-email-notification`). Consider a `GET /automations/{id}` check after upsert.

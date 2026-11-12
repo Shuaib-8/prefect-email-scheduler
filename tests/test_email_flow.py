@@ -62,8 +62,33 @@ class TestExampleEmailSendMessageFlow:
 
         result = example_email_send_message_flow.fn(["test@example.com"])
 
-        assert result == "task_result"
+        assert result == ["task_result", "task_result"]
         assert mock_email_send.with_options.call_count == 2  # Two carers
+
+    @patch("email_flow.get_run_logger")
+    @patch("email_flow.email_send_message")
+    @patch("email_flow.Variable")
+    @patch("email_flow.EmailServerCredentials")
+    def test_flow_returns_every_send_future_so_any_failure_fails_the_run(
+        self, mock_credentials, mock_variable, mock_email_send, mock_logger, valid_email_config
+    ):
+        """
+        Prefect derives the flow's final state from its return value only. Returning every
+        send future (not just the last) means one failed send among several marks the run
+        Failed, which is what the failure-alert automation listens for.
+        """
+        mock_credentials.load.return_value = MagicMock()
+        mock_variable.get.return_value = valid_email_config
+        mock_logger.return_value = MagicMock()
+
+        submitted_futures = [MagicMock(name=f"future-{index}") for index in range(4)]
+        mock_task = MagicMock()
+        mock_task.submit.side_effect = submitted_futures
+        mock_email_send.with_options.return_value = mock_task
+
+        result = example_email_send_message_flow.fn(["first@example.com", "second@example.com"])
+
+        assert result == submitted_futures  # 2 addresses x 2 carers, in submission order
 
     @patch("email_flow.get_run_logger")
     @patch("email_flow.Variable")
