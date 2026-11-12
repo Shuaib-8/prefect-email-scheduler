@@ -45,6 +45,7 @@ The flow requires these resources to exist in Prefect Cloud before running:
 - **Credentials block:** `gmail-access-app` (Gmail `EmailServerCredentials`)
 - **Variable:** `email_config` (JSON with shape below)
 - **Work pool:** `managed-prefect-workpool`
+- **Failure alert (optional but recommended):** automation `email-deployment-failure-alert` plus a Cloud `email` notification block of the same name. Both are created or updated by `uv run automations.py`, which is safe to re-run.
 
 ```json
 {
@@ -68,6 +69,9 @@ The default managed work pool image (`prefecthq/prefect-client:3-latest`, a slim
 
 **Resolved — silent SMTP hangs:**
 `email_send_message` task in `email_flow.py` is configured with `timeout_seconds=150` to bound any single email send. Without this, a hung SMTP connection could silently swallow a flow run.
+
+**Resolved — silent failed runs (2026-11-12):**
+The 2026-11-12 08:00 UTC run failed with `SMTPServerDisconnected` during `AUTH` because Gmail had revoked the `gmail-access-app` app password. Nothing alerted on it, and the scheduler does not retry failed runs. `automations.py` now sets up an automation that emails when a run of `email-deployment` ends Failed, Crashed or TimedOut. It uses Prefect Cloud's own `email` notification block, so the alert does not depend on the Gmail credentials that may be the cause. By default it alerts the `gmail-access-app` username; use `--email` to override. Do **not** switch to the Cloud `send-email-notification` action type: Cloud returns 201 for it, but the automation never persists.
 
 **Backlog — recipient list dual source-of-truth:**
 Recipients currently live in **two** Cloud-side places: the `email_config.email_addresses` variable (read by `deploy.py` at deploy time) and the deployment record's `parameters` field (set by `deploy.py`). Editing the variable alone does **not** propagate to scheduled runs — `python deploy.py` must be re-run for the new list to reach the deployment record. The cleaner alternative (deferred) is to make `email_addresses` optional in `example_email_send_message_flow`, and fall back to `email_config["email_addresses"]` inside the flow itself. That would collapse the dependency to a single Cloud variable that flows through to every run with zero redeploy. Defer unless recipient lists change often.

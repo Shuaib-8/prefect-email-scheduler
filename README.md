@@ -38,6 +38,18 @@ uv run main.py
 2. **email_template.py** - Contains the templates for the emails.
 3. **deploy.py** - Used to deploy the flow to Prefect Cloud.
 4. **starter.py** - A reference example demonstrating how tasks and flow operations are designated in Prefect (not essential to this project).
+5. **automations.py** - Sets up a Prefect Cloud alert that emails you when a scheduled run fails, crashes or times out.
+
+## Failure alerts
+
+The scheduler doesn't retry a failed run, so set up an email alert:
+
+```bash
+uv run automations.py                     # alert the gmail-access-app account owner
+uv run automations.py --email you@x.com   # or a specific address (repeatable)
+```
+
+The script is safe to re-run, because it updates the existing alert instead of creating a duplicate. Prefect Cloud sends the alert itself, so it still arrives if the Gmail app password is the thing that broke.
 
 ## Testing
 
