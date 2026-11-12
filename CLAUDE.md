@@ -69,6 +69,9 @@ The default managed work pool image (`prefecthq/prefect-client:3-latest`, a slim
 **Resolved — silent SMTP hangs:**
 `email_send_message` task in `email_flow.py` is configured with `timeout_seconds=150` to bound any single email send. Without this, a hung SMTP connection could silently swallow a flow run.
 
+**Resolved — partial send failures ended Completed (2026-11-12):**
+Prefect 3 sets a flow run's final state from its **return value only** (`flow_engine.handle_success` resolves only the returned futures). Submitted task futures that are not returned do not affect the run's state, even if they fail. The flow used to return only the last `email_send_message` future, so an earlier failed send still left the run Completed and no failure alert fired. `example_email_send_message_flow` now returns **every** submitted send future. Keep it that way: any new `.submit()` in a flow must be returned (or waited on and checked), or its failure is silent.
+
 **Backlog — recipient list dual source-of-truth:**
 Recipients currently live in **two** Cloud-side places: the `email_config.email_addresses` variable (read by `deploy.py` at deploy time) and the deployment record's `parameters` field (set by `deploy.py`). Editing the variable alone does **not** propagate to scheduled runs — `python deploy.py` must be re-run for the new list to reach the deployment record. The cleaner alternative (deferred) is to make `email_addresses` optional in `example_email_send_message_flow`, and fall back to `email_config["email_addresses"]` inside the flow itself. That would collapse the dependency to a single Cloud variable that flows through to every run with zero redeploy. Defer unless recipient lists change often.
 
